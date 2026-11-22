@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KlaimCek — AI Receipt &amp; Claim Verifier</title>
+<meta name="description" content="Offline AI cross-checks expense claims against receipts: duplicates, mismatches and anomalies flagged with plain-language reasons. Human stays the final approver.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <div class="logo">Klaim<span>Cek</span></div>
+    <h1>Catch fake expense claims before they cost you.</h1>
+    <p class="tagline">Paste your claims and receipts — KlaimCek cross-checks every line locally: duplicates, amount mismatches and statistical anomalies are flagged with clear reasons. No uploads, no API keys, no data leaves this device. A human always makes the final call.</p>
+    <div class="badges">
+      <span class="badge">100% offline</span><span class="badge">Indonesian formats (Rp, dd/mm/yyyy)</span><span class="badge">Explainable flags</span><span class="badge">Human-in-the-loop</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="card">
+    <div class="card-head">
+      <h2>1 · Expense claims</h2>
+      <div class="actions">
+        <button id="btnSample" class="btn primary">Load demo data</button>
+        <label class="btn ghost">Import CSV<input id="fileCsv" type="file" accept=".csv,.txt" hidden></label>
+      </div>
+    </div>
+    <p class="hint">Columns: <code>employee, date, merchant, amount, category</code> — Indonesian headers (karyawan, tanggal, toko, nominal, kategori) work too. Amounts like <code>Rp1.250.000</code>, <code>250rb</code>, <code>1,5jt</code> are understood.</p>
+    <textarea id="claimsInput" rows="8" spellcheck="false" placeholder="employee,date,merchant,amount,category&#10;Andi,2026-11-03,Indomaret,&quot;Rp 87.500&quot;,Office supplies"></textarea>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <h2>2 · Receipts</h2>
+      <div class="actions"><button id="btnAddReceipt" class="btn ghost">+ Add receipt</button></div>
+    </div>
+    <p class="hint">Paste receipt text (typed, copied from an e-receipt, or OCR output). KlaimCek extracts merchant, date and total automatically. Separate multiple receipts with a line containing only <code>---</code>.</p>
+    <textarea id="receiptsInput" rows="8" spellcheck="false" placeholder="INDOMARET&#10;03/11/2026&#10;TOTAL Rp 87.500"></textarea>
+    <div id="parsedReceipts" class="chips"></div>
+  </section>
+
+  <div class="runrow">
+    <button id="btnVerify" class="btn big">Verify claims</button>
+    <span id="runStatus" class="hint"></span>
+  </div>
+
+  <section id="resultsSection" class="card hidden">
+    <div class="card-head">
+      <h2>3 · Verification results</h2>
+      <div class="actions">
+        <button id="btnExportCsv" class="btn ghost">Export CSV</button>
+        <button id="btnExportJson" class="btn ghost">Export JSON</button>
+      </div>
+    </div>
+    <div id="stats" class="stats"></div>
+    <div class="filters" role="group" aria-label="Filter by status">
+      <button data-f="all" class="chip active">All</button>
+      <button data-f="verified" class="chip">Verified</button>
+      <button data-f="review" class="chip">Needs review</button>
+      <button data-f="flagged" class="chip">Flagged</button>
+    </div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>ID</th><th>Employee</th><th>Date</th><th>Merchant</th><th>Amount</th><th>Status</th><th>Risk</th><th>Why</th></tr></thead>
+        <tbody id="resultsBody"></tbody>
+      </table>
+    </div>
+    <p class="hint">KlaimCek never rejects a claim by itself — it ranks risk and explains every flag so a human approver can decide in seconds.</p>
+  </section>
+
+  <section class="card">
+    <h2>How the AI works</h2>
+    <ul class="how">
+      <li><strong>Receipt understanding (NLP heuristics):</strong> extracts merchant, date and total from free-form receipt text, including Indonesian date and currency formats.</li>
+      <li><strong>Fuzzy matching:</strong> Levenshtein edit distance + token overlap link each claim to its receipt even when names are typed differently ("Indomart" ≈ "Indomaret").</li>
+      <li><strong>Duplicate detection:</strong> exact fingerprints (merchant+date+amount) plus near-duplicates (same employee &amp; amount within a day).</li>
+      <li><strong>Anomaly detection:</strong> median/MAD modified z-scores flag statistical outliers; round-number and weekend signals add context.</li>
+      <li><strong>Explainable risk scoring:</strong> every flag carries a plain-language reason and a 0–100 risk score. No black box, no auto-rejection.</li>
+    </ul>
+  </section>
+</main>
+
+<footer class="wrap foot">KlaimCek · Built for SLAY HACKS 2026 · Runs fully in your browser — your financial data never leaves this device.</footer>
+<script type="module" src="app.js"></script>
+</body>
+</html>
